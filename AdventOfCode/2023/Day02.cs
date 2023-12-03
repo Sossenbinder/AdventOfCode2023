@@ -4,6 +4,11 @@ namespace AdventOfCode._2023;
 
 public class Day02 : AdventBase
 {
+    protected override void InternalOnLoad()
+    {
+        _ = Input;
+    }
+
     protected override object InternalPart1()
     {
         var gameSum = 0;
