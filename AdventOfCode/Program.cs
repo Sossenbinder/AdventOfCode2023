@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics;
 using AdventOfCodeSupport;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Reports;
+using Perfolizer.Horology;
 
 var solutions = new AdventSolutions();
-var today = solutions.GetDay(2023, 3);
+var today = solutions.GetDay(2023, 4);
 
 var benchmark = false;
 #if RELEASE
@@ -17,7 +20,10 @@ static void RunToday(AdventBase today, bool benchmark = false)
 {
     if (benchmark)
     {
-        today.Benchmark();
+        today.Benchmark(new ManualConfig()
+        {
+            SummaryStyle = SummaryStyle.Default.WithTimeUnit(TimeUnit.Microsecond)
+        });
     }
     else
     {
