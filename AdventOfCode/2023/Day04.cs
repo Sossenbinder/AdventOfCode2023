@@ -75,7 +75,7 @@
 		    }
 
 		    var numberSpan = lineSpan[splitSpans[1]];
-		    Span<Range> numberSplits = stackalloc Range[100];
+		    Span<Range> numberSplits = stackalloc Range[30];
 		    numberSpan.Split(numberSplits, ' ');
 
 		    foreach (var numberSplit in numberSplits)
