@@ -9,7 +9,7 @@
 		    var races = ParseRaces();
 
 		    var beatingConstellations = races
-			    .Select(CalculateBeatingDistances)
+			    .Select(CalculateBeatingDistancesFast)
 			    .Aggregate((current, next) => current * next);
 
 		    return beatingConstellations;
@@ -19,7 +19,7 @@
 	    {
 		    var raceTwo = ParseRaceTwo();
 
-		    var beatingDistances = CalculateBeatingDistances(raceTwo);
+		    var beatingDistances = CalculateBeatingDistancesFast(raceTwo);
 
 		    return beatingDistances;
 	    }
@@ -43,7 +43,7 @@
 			return new Race(time, result);
 	    }
 
-	    private int CalculateBeatingDistances(Race race)
+	    private static int CalculateBeatingDistancesOriginal(Race race)
 	    {
 		    var beatingConstellations = 0;
 
@@ -58,6 +58,13 @@
 		    }
 
 		    return beatingConstellations;
+	    }
+	    
+	    private static int CalculateBeatingDistancesFast(Race race)
+	    {
+		    var minimumDistance = Math.Ceiling(0.5 * (race.Time - Math.Sqrt(Math.Pow(race.Time, 2) - 4 * race.Distance - 4)));
+
+		    return (int)(race.Time - minimumDistance - (minimumDistance - 1));
 	    }
 
 	    private record struct Race(
