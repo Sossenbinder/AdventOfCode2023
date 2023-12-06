@@ -5,7 +5,7 @@ using BenchmarkDotNet.Reports;
 using Perfolizer.Horology;
 
 var solutions = new AdventSolutions();
-var today = solutions.GetDay(2023, 5);
+var today = solutions.GetDay(2023, 6);
 
 var benchmark = false;
 #if RELEASE
