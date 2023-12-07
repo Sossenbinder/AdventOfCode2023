@@ -2,7 +2,7 @@
 using AdventOfCodeSupport;
 
 var solutions = new AdventSolutions();
-var today = solutions.GetDay(2023, 6);
+var today = solutions.GetDay(2023, 7);
 
 var benchmark = false;
 #if RELEASE

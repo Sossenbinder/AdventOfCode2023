@@ -62,8 +62,8 @@
 	    
 	    private static int CalculateBeatingDistancesFast(Race race)
 	    {
+		    return 0;
 		    var minimumDistance = Math.Ceiling(0.5 * (race.Time - Math.Sqrt(Math.Pow(race.Time, 2) - 4 * race.Distance - 4)));
-
 		    return (int)(race.Time - minimumDistance - (minimumDistance - 1));
 	    }
 
