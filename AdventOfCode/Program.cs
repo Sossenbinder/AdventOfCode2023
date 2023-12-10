@@ -2,7 +2,7 @@
 using AdventOfCodeSupport;
 
 var solutions = new AdventSolutions();
-var today = solutions.GetDay(2023, 7);
+var today = solutions.GetDay(2023, 8);
 
 var benchmark = false;
 #if RELEASE
@@ -22,7 +22,7 @@ static void RunToday(AdventBase today, bool benchmark = false)
     else
     {
         var sw = Stopwatch.StartNew();
-        today.Part1();
+        //today.Part1();
         var firstPart = sw.Elapsed;
         Console.WriteLine($"Elapsed: {WithPreciseFormat(firstPart)}");
         sw.Restart();
