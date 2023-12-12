@@ -20,21 +20,16 @@
             var field = split[0];
             var instructions = split[1].Split(',').Select(int.Parse).ToArray();
 
-            var combinations = CalculatePermutations(field, instructions).ToList();
+            var combinations = CalculatePermutations(field, instructions);
             return combinations.Count;
         }
 
 
         private static List<string> CalculatePermutations(string template, int[] instructions, int templateIndex = 0, int instructionIndex = 0)
         {
-	        if (instructionIndex == instructions.Length && template.All(x => x != '?'))
-	        {
-		        return FindHashGroupsInString(template).Count() == instructions.Length ? [template] : [];
-	        }
-	        
             if (templateIndex >= template.Length)
             {
-                return instructionIndex == instructions.Length ? [template] : [];
+                return instructionIndex + 1 == instructions.Length ? [template] : [];
             }
 
             var startChar = template[templateIndex];
@@ -42,9 +37,9 @@
 
             if (startChar == '?')
             {
-	            var list = CalculatePermutations(template[..templateIndex] + "." + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex);
-	            list.AddRange(CalculatePermutations(template[..templateIndex] + "#" + template[(templateIndex+1)..], instructions, templateIndex, instructionIndex));
-	            return list;
+	            var result = CalculatePermutations(template[..templateIndex] + "." + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex);
+	            result.AddRange(CalculatePermutations(template[..templateIndex] + "#" + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex));
+	            return result;
             }
 
             if (startChar == '.')
@@ -78,24 +73,12 @@
 
             var contiguousLength = rightwardIndex - 1 - leftwardIndex;
 
-            if (instructionIndex < instructions.Length && contiguousLength == instructions[instructionIndex])
+            if (contiguousLength == instructions[instructionIndex])
             {
-	            var newInstructionIndex = instructionIndex + 1;
-
-	            if (newInstructionIndex == instructions.Length)
-	            {
-		            var hashGroups = FindHashGroupsInString(template).ToList();
-		            if (hashGroups.Count > instructions.Length)
-		            {
-			            return [];
-		            }
-
-		            if (hashGroups.Count == instructions.Length && template.All(x => x != '?') && hashGroups.Select((x, index) => instructions[index] == x).All(x => x))
-		            {
-			            return [template];
-		            }
-	            }
 	            
+            }
+            else if (contiguousLength == instructions[instructionIndex])
+            {
 	            if ((rightwardIndex + 1) >= template.Length)
 	            {
 		            return [];
@@ -103,36 +86,9 @@
 	            
 	            // Add a . after the group we just found 
 	            var newTemplate = template[..rightwardIndex] + "." + template[(rightwardIndex + 1)..];
-	            return CalculatePermutations(newTemplate, instructions, rightwardIndex - 1, newInstructionIndex);
+	            return CalculatePermutations(newTemplate, instructions, rightwardIndex - 1, instructionIndex + 1);
             }
             
             return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
-        }
-
-        private static IEnumerable<int> FindHashGroupsInString(string input)
-        {
-	        var count = 0;
-	        var inGroup = false;
-
-	        for (var i = 0; i < input.Length; i++)
-	        {
-		        if (input[i] == '#')
-		        {
-			        if (!inGroup)
-			        {
-				        count++;
-				        inGroup = true;
-			        }
-		        }
-		        else
-		        {
-			        if (count != 0)
-			        {
-				        yield return count;
-			        }
-			        count = 0;
-			        inGroup = false;
-		        }
-	        }
         }
 	}
