@@ -48,7 +48,7 @@
 	            return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
             }
 
-            var rightwardIndex = FindLastOccurrenceForwardSearch(template, '#', templateIndex) + 1;
+            var rightwardIndex = FindLastOccurrenceForwardSearch(template, '#', templateIndex, template.Length);
 
             if (rightwardIndex == -1)
             {
@@ -84,26 +84,25 @@
 	            // Add a . after the group we just found 
 	            return CalculatePermutations(newTemplate, instructions, rightwardIndex + 1, instructionIndex + 1);
             }
-            if (contiguousLength > instructions[instructionIndex])
-            {
-		        return [];
-            }
+          //   if (contiguousLength > instructions[instructionIndex])
+          //   {
+		        // return [];
+          //   }
 
             return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
         }
         
-        private static int FindLastOccurrenceForwardSearch(string input, char character, int startPosition)
+        private static int FindLastOccurrenceForwardSearch(string input, char character, int startPosition, int max)
         {
-	        var lastIndex = -1;
 	        for (var i = startPosition; i < input.Length; i++)
 	        {
-		        if (input[i] == character)
+		        if (input[i] != character)
 		        {
-			        lastIndex = i;
+			        return i;
 		        }
 	        }
 
-	        return lastIndex;
+	        return max;
         }
         
         private static int FindFirstOccurrenceBackwardSearch(string input, char character, int startPosition)
