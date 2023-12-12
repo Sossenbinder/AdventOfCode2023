@@ -20,16 +20,21 @@
             var field = split[0];
             var instructions = split[1].Split(',').Select(int.Parse).ToArray();
 
-            var combinations = CalculatePermutations(field, instructions);
-            return combinations;
+            var combinations = CalculatePermutations(field, instructions).ToList();
+            return combinations.Count;
         }
 
 
-        private static int CalculatePermutations(string template, int[] instructions, int templateIndex = 0, int instructionIndex = 0)
+        private static List<string> CalculatePermutations(string template, int[] instructions, int templateIndex = 0, int instructionIndex = 0)
         {
-            if (templateIndex == template.Length)
+	        if (instructionIndex == instructions.Length && template.All(x => x != '?'))
+	        {
+		        return FindHashGroupsInString(template).Count() == instructions.Length ? [template] : [];
+	        }
+	        
+            if (templateIndex >= template.Length)
             {
-                return instructionIndex + 1 == instructions.Length ? 1 : 0;
+                return instructionIndex == instructions.Length ? [template] : [];
             }
 
             var startChar = template[templateIndex];
@@ -37,9 +42,9 @@
 
             if (startChar == '?')
             {
-	            return CalculatePermutations(template[..templateIndex] + "." + template[(templateIndex+1)..], instructions, templateIndex, instructionIndex)
-	                   + 
-	                   CalculatePermutations(template[..templateIndex] + "#" + template[(templateIndex+1)..], instructions, templateIndex, instructionIndex);
+	            var list = CalculatePermutations(template[..templateIndex] + "." + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex);
+	            list.AddRange(CalculatePermutations(template[..templateIndex] + "#" + template[(templateIndex+1)..], instructions, templateIndex, instructionIndex));
+	            return list;
             }
 
             if (startChar == '.')
@@ -71,15 +76,63 @@
 	            leftwardIndex = 0;
             }
 
-            var contiguousLength = rightwardIndex - leftwardIndex;
+            var contiguousLength = rightwardIndex - 1 - leftwardIndex;
 
-            if (contiguousLength == instructions[instructionIndex])
+            if (instructionIndex < instructions.Length && contiguousLength == instructions[instructionIndex])
             {
+	            var newInstructionIndex = instructionIndex + 1;
+
+	            if (newInstructionIndex == instructions.Length)
+	            {
+		            var hashGroups = FindHashGroupsInString(template).ToList();
+		            if (hashGroups.Count > instructions.Length)
+		            {
+			            return [];
+		            }
+
+		            if (hashGroups.Count == instructions.Length && template.All(x => x != '?') && hashGroups.Select((x, index) => instructions[index] == x).All(x => x))
+		            {
+			            return [template];
+		            }
+	            }
+	            
+	            if ((rightwardIndex + 1) >= template.Length)
+	            {
+		            return [];
+	            }
+	            
 	            // Add a . after the group we just found 
-	            var newTemplate = template[..(rightwardIndex + 1)] + "." + template[(rightwardIndex + 2)..];
-	            return CalculatePermutations(newTemplate, instructions, movedIndex + rightwardIndex - 1, instructionIndex + 1);
+	            var newTemplate = template[..rightwardIndex] + "." + template[(rightwardIndex + 1)..];
+	            return CalculatePermutations(newTemplate, instructions, rightwardIndex - 1, newInstructionIndex);
             }
             
             return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
+        }
+
+        private static IEnumerable<int> FindHashGroupsInString(string input)
+        {
+	        var count = 0;
+	        var inGroup = false;
+
+	        for (var i = 0; i < input.Length; i++)
+	        {
+		        if (input[i] == '#')
+		        {
+			        if (!inGroup)
+			        {
+				        count++;
+				        inGroup = true;
+			        }
+		        }
+		        else
+		        {
+			        if (count != 0)
+			        {
+				        yield return count;
+			        }
+			        count = 0;
+			        inGroup = false;
+		        }
+	        }
         }
 	}
