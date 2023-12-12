@@ -29,7 +29,8 @@
         {
             if (templateIndex >= template.Length)
             {
-                return instructionIndex + 1 == instructions.Length ? [template] : [];
+	            var hashGroups = FindHashGroupsInString(template).ToArray();
+                return instructionIndex == instructions.Length && instructions.Select((x, index) => hashGroups[index] == x).All(x => x) ? [template] : [];
             }
 
             var startChar = template[templateIndex];
@@ -37,8 +38,8 @@
 
             if (startChar == '?')
             {
-	            var result = CalculatePermutations(template[..templateIndex] + "." + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex);
-	            result.AddRange(CalculatePermutations(template[..templateIndex] + "#" + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex));
+	            var result = CalculatePermutations(template[..templateIndex] + "#" + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex);
+	            result.AddRange(CalculatePermutations(template[..templateIndex] + "." + template[(templateIndex + 1)..], instructions, templateIndex, instructionIndex));
 	            return result;
             }
 
@@ -47,48 +48,108 @@
 	            return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
             }
 
-            var rightwardIndex = template.IndexOf('.', templateIndex);
+            var rightwardIndex = FindLastOccurrenceForwardSearch(template, '#', templateIndex) + 1;
 
             if (rightwardIndex == -1)
             {
-	            rightwardIndex = template.IndexOf('?', templateIndex);
+	            rightwardIndex = templateIndex;
             }
 
-            if (rightwardIndex == -1)
-            {
-	            rightwardIndex = template.Length;
-            }
-            
-            var leftwardIndex = template.LastIndexOf('.', templateIndex);
+            var leftwardIndex = FindFirstOccurrenceBackwardSearch(template, '#', templateIndex);
 
             if (leftwardIndex == -1)
             {
-	            leftwardIndex = template.LastIndexOf('?', templateIndex);
+	            leftwardIndex = templateIndex;
             }
 
-            if (leftwardIndex == -1)
+            var contiguousLength = rightwardIndex - leftwardIndex;
+
+            if (instructionIndex >= instructions.Length)
             {
-	            leftwardIndex = 0;
+	            return [];
             }
-
-            var contiguousLength = rightwardIndex - 1 - leftwardIndex;
 
             if (contiguousLength == instructions[instructionIndex])
             {
-	            
-            }
-            else if (contiguousLength == instructions[instructionIndex])
-            {
-	            if ((rightwardIndex + 1) >= template.Length)
+	            string newTemplate = "";
+	            if (rightwardIndex >= template.Length)
 	            {
-		            return [];
+		            newTemplate = template[..rightwardIndex] + ".";
+	            }
+	            else
+	            {
+		            newTemplate = template[..rightwardIndex] + "." + template[(rightwardIndex + 1)..];
 	            }
 	            
 	            // Add a . after the group we just found 
-	            var newTemplate = template[..rightwardIndex] + "." + template[(rightwardIndex + 1)..];
-	            return CalculatePermutations(newTemplate, instructions, rightwardIndex - 1, instructionIndex + 1);
+	            return CalculatePermutations(newTemplate, instructions, rightwardIndex + 1, instructionIndex + 1);
             }
-            
+            if (contiguousLength > instructions[instructionIndex])
+            {
+		        return [];
+            }
+
             return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
         }
+        
+        private static int FindLastOccurrenceForwardSearch(string input, char character, int startPosition)
+        {
+	        var lastIndex = -1;
+	        for (var i = startPosition; i < input.Length; i++)
+	        {
+		        if (input[i] == character)
+		        {
+			        lastIndex = i;
+		        }
+	        }
+
+	        return lastIndex;
+        }
+        
+        private static int FindFirstOccurrenceBackwardSearch(string input, char character, int startPosition)
+        {
+	        if (startPosition - 1 == 0)
+	        {
+		        return startPosition;
+	        }
+	        
+	        for (var i = startPosition - 1; i >= 0; i--)
+	        {
+		        if (input[i] != character)
+		        {
+			        return i + 1;
+		        }
+	        }
+
+	        
+	        return 0;
+        }
+
+        private static IEnumerable<int> FindHashGroupsInString(string input)
+        {
+	        var count = 0;
+	        var inGroup = false;
+
+	        for (var i = 0; i < input.Length; i++)
+	        {
+		        if (input[i] == '#')
+		        {
+			        count++;
+			        if (!inGroup)
+			        {
+				        inGroup = true;
+			        }
+		        }
+		        else
+		        {
+			        if (count != 0)
+			        {
+				        yield return count;
+			        }
+			        count = 0;
+			        inGroup = false;
+		        }
+	        }
+        }
+
 	}
