@@ -1,3 +1,4 @@
+	using System.Text.Json;
 	using AdventOfCodeSupport;
 
 	namespace AdventOfCode._2023;
@@ -30,7 +31,7 @@
             if (templateIndex >= template.Length)
             {
 	            var hashGroups = FindHashGroupsInString(template).ToArray();
-                return instructionIndex == instructions.Length && instructions.Select((x, index) => hashGroups[index] == x).All(x => x) ? [template] : [];
+                return hashGroups.Length == instructions.Length && instructions.Select((x, index) => hashGroups[index] == x).All(x => x) ? [template] : [];
             }
 
             var startChar = template[templateIndex];
@@ -48,15 +49,14 @@
 	            return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
             }
 
+            // Find the length of the current # set
             var rightwardIndex = FindLastOccurrenceForwardSearch(template, '#', templateIndex, template.Length);
-
             if (rightwardIndex == -1)
             {
 	            rightwardIndex = templateIndex;
             }
 
             var leftwardIndex = FindFirstOccurrenceBackwardSearch(template, '#', templateIndex);
-
             if (leftwardIndex == -1)
             {
 	            leftwardIndex = templateIndex;
@@ -84,10 +84,12 @@
 	            // Add a . after the group we just found 
 	            return CalculatePermutations(newTemplate, instructions, rightwardIndex + 1, instructionIndex + 1);
             }
-          //   if (contiguousLength > instructions[instructionIndex])
-          //   {
-		        // return [];
-          //   }
+
+            if (contiguousLength > instructions[instructionIndex])
+            {
+	            // If the current length is already bigger than the instruction set, there will be no more chance to suceed
+	            return [];
+            }
 
             return CalculatePermutations(template, instructions, movedIndex, instructionIndex);
         }
@@ -107,11 +109,6 @@
         
         private static int FindFirstOccurrenceBackwardSearch(string input, char character, int startPosition)
         {
-	        if (startPosition - 1 == 0)
-	        {
-		        return startPosition;
-	        }
-	        
 	        for (var i = startPosition - 1; i >= 0; i--)
 	        {
 		        if (input[i] != character)
